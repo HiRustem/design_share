@@ -1,43 +1,59 @@
 'use client';
 
 import { useAuthStore } from '@/entities/auth';
+import { useLogin } from '@/entities/auth/api';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 interface LoginForm {
   email: string;
   password: string;
 }
 
+const defaultLoginFormState: LoginForm = {
+  email: '',
+  password: '',
+};
+
 export default function LoginPage() {
-  const { register, handleSubmit } = useForm<LoginForm>();
+  const formMethods = useForm<LoginForm>({
+    defaultValues: defaultLoginFormState,
+    mode: 'onChange',
+  });
+
   const setAuth = useAuthStore((state) => state.setAuth);
   const router = useRouter();
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginForm) => {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Login failed');
-      return res.json();
-    },
+  const { mutate } = useLogin({
     onSuccess: (data) => {
-      setAuth(data.token, data.user);
+      setAuth(data.token);
       router.push('/profile');
     },
   });
 
-  const onSubmit = (data: LoginForm) => loginMutation.mutate(data);
+  const onSubmit = (data: LoginForm) => mutate(data);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register('email')} type="email" />
-      <input {...register('password')} type="password" />
-      <button type="submit">Login</button>
-    </form>
+    <FormProvider {...formMethods}>
+      <form onSubmit={formMethods.handleSubmit(onSubmit)}>
+        <Controller
+          name="email"
+          render={({ field }) => {
+            return <input type="text" placeholder="Your name" {...field} />;
+          }}
+        />
+
+        <Controller
+          name="password"
+          render={({ field }) => {
+            return <input type="text" placeholder="Your name" {...field} />;
+          }}
+        />
+        <button type="submit" disabled={!formMethods.formState.isValid}>
+          Войти
+        </button>
+      </form>
+    </FormProvider>
   );
 }

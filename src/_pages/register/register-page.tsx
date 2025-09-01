@@ -1,9 +1,10 @@
 'use client';
 
 import { useAuthStore } from '@/entities/auth';
+import { useRegister } from '@/entities/auth/api';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 interface RegisterForm {
   email: string;
@@ -11,40 +12,57 @@ interface RegisterForm {
   name?: string;
 }
 
+const defaultRegisterFormState: RegisterForm = {
+  email: '',
+  password: '',
+};
+
 export default function RegisterPage() {
-  const { register, handleSubmit } = useForm<RegisterForm>();
+  const formMethods = useForm<RegisterForm>({
+    defaultValues: defaultRegisterFormState,
+    mode: 'onChange',
+  });
+
   const setAuth = useAuthStore((state) => state.setAuth);
   const router = useRouter();
 
-  const registerMutation = useMutation({
-    mutationFn: async (data: RegisterForm) => {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Registration failed');
-      return res.json();
-    },
+  const { mutate } = useRegister({
     onSuccess: (data) => {
-      setAuth(data.token, data.user);
+      setAuth(data.token);
       router.push('/profile');
     },
   });
 
-  const onSubmit = (data: RegisterForm) => registerMutation.mutate(data);
+  const onSubmit = (data: RegisterForm) => mutate(data);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register('name')} type="text" placeholder="Your name" />
-      <input {...register('email')} type="email" placeholder="Email" required />
-      <input {...register('password')} type="password" placeholder="Password" required />
-      <button type="submit" disabled={registerMutation.isPending}>
-        {registerMutation.isPending ? 'Loading...' : 'Register'}
-      </button>
-      {registerMutation.isError && (
-        <p style={{ color: 'red' }}>Error: {(registerMutation.error as Error).message}</p>
-      )}
-    </form>
+    <FormProvider {...formMethods}>
+      <form onSubmit={formMethods.handleSubmit(onSubmit)}>
+        <Controller
+          name="email"
+          render={({ field }) => {
+            return <input type="text" placeholder="Your name" {...field} />;
+          }}
+        />
+
+        <Controller
+          name="password"
+          render={({ field }) => {
+            return <input type="text" placeholder="Your name" {...field} />;
+          }}
+        />
+
+        <Controller
+          name="name"
+          render={({ field }) => {
+            return <input type="text" placeholder="Your name" {...field} />;
+          }}
+        />
+
+        <button type="submit" disabled={!formMethods.formState.isValid}>
+          Зарегистрироваться
+        </button>
+      </form>
+    </FormProvider>
   );
 }
