@@ -98,7 +98,7 @@ function createApi(config: ApiConfig) {
   };
 }
 
-export const authApi = createApi({
+export const baseApi = createApi({
   baseUrl: API_BASE_URL,
   defaultHeaders: { 'Content-Type': 'application/json' },
 });

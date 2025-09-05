@@ -2,15 +2,15 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import Cookies from 'js-cookie';
 
-type IAuthState = {
+interface IAuthState {
   token: string | null;
-};
+}
 
-type IAuthActions = {
+interface IAuthActions {
   setAuth: (token: string) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
-};
+}
 
 const defaultAuthState: IAuthState = {
   token: Cookies.get('authToken') || null,

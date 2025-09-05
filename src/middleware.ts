@@ -9,6 +9,14 @@ export function middleware(request: NextRequest) {
 
   const isProtected = protectedPaths.some((path) => pathname === path || pathname.startsWith(path));
 
+  if (pathname === '/' && !token) {
+    return NextResponse.redirect(new URL('/auth/login', request.url), 307);
+  }
+
+  if (pathname === '/' && token) {
+    return NextResponse.redirect(new URL('/profile', request.url), 307);
+  }
+
   if (isProtected && !token) {
     return NextResponse.redirect(new URL('/auth/login', request.url), 307);
   }
@@ -22,6 +30,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/profile',
     '/profile/:path*',
     '/edit',
