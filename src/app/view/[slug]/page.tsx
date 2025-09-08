@@ -1,7 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
-// import { Document, Page } from 'react-pdf';
+import { DesignEditor } from '@/entities/design';
 
 export default function ViewPage({ params }: { params: Promise<{ slug: string }> }) {
   // const { id } = useParams();
@@ -15,14 +13,5 @@ export default function ViewPage({ params }: { params: Promise<{ slug: string }>
   //   },
   // });
 
-  return (
-    <div>
-      {/* {design && (
-        <Document file={design.url}>
-          <Page pageNumber={1} />
-        </Document>
-      )} */}
-      Design
-    </div>
-  );
+  return <DesignEditor />;
 }
