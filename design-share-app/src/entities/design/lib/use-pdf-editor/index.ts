@@ -1,0 +1,1 @@
+export { default as usePdfEditor } from './use-pdf-editor';
